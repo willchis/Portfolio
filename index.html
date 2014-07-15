@@ -1,22 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="portfolioApp">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport"    content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="">
-	<meta name="author"      content="Sergey Pozhilov (GetTemplate.com)">
+	<meta name="description" content="Will Chislett - I'm a developer">
+	<meta name="author"      content="Will Chislett">
 	
-	<title>Magister - Free html5 template by GetTemplate</title>
+	<title>Will Chislett | Web Dev</title>
 
 	
 	<!-- Bootstrap itself -->
 	<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
-
+	<link href="css/magister.css" rel="stylesheet" type="text/css">
 	<!-- Custom styles -->
-	<link rel="stylesheet" href="css/magister.css">
 
 	<!-- Fonts -->
 	<link href='http://fonts.googleapis.com/css?family=Wire+One' rel='stylesheet' type='text/css'>
+
+	<script src="js/angular.js"></script>
+	<script src="js/angular-route.js"></script>
+	<script src="js/app.js"></script>
+	<script src="js/controllers.js"></script>
 </head>
 
 <!-- use "theme-invert" class on bright backgrounds, also try "text-shadows" class -->
@@ -46,17 +50,28 @@
 			<div class="col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 text-center">	
 
 				<!-- Site Title, your name, HELLO msg, etc. -->
-				<h1 class="title">Magister</h1>
-				<h2 class="subtitle">Free html5 template by GetTemplate</h2>
+				<h1 class="title">Will Chislett</h1>
+				<h2 class="subtitle">Web developer</h2>
 
 				<!-- Short introductory (optional) -->
 				<h3 class="tagline">
-					Potentially, the best place to tell people why they are here.<br>
-					So, this is a demo page built to showcase the beauty of the template.
+					I create online applications.<br>
+					Take a look at my CV and experiments...
 				</h3>
 				
+				<div class="row">
+        <div class="col-md-3">
+            <ul class="nav">
+                <li><a href="#CV"> CV </a></li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <div ng-view></div>
+        </div>
+        </div>
+				
 				<!-- Nice place to describe your site in a sentence or two -->
-				<p><a href="/download/" class="btn btn-default btn-lg">Download template now</a></p>
+				<p><a href="/download/" class="btn btn-default btn-lg">Look around</a></p>
 	
 			</div> <!-- /col -->
 		</div> <!-- /row -->
