@@ -8,6 +8,8 @@ portfolioApp.config(['$routeProvider',
         controller: 'HomeController'
       }).
       otherwise({
-        redirectTo: '/'
+        redirectTo: '/',
+        templateUrl: 'partials/home.html',
+        controller: 'HomeController'
       });
   }]);

@@ -14,90 +14,61 @@ body {
 	-webkit-overflow-scrolling: touch;
 	line-height: 1.5em;
 	font-size:14px;
-	font-family: Helvetica, Arial, sans-serif;
-	color:#fff;
-	color:rgba(255,255,255,.8); 
+	font-family: latolight, Helvetica, Arial, sans-serif;
+	color: #000000; 
 	font-weight: normal;
 }
 
-
-/********************************************************/
-/*                    Navigation bar                    */
-/********************************************************/
-
-
-
-
-
-
-
-/********************************************************/
-/*             Sections - universal classes             */
-/********************************************************/
-.section { 
-	z-index: 1;
-	min-height:420px;
-	width: 100%; 
-	overflow:auto;
-	height:100%;
-	padding-top:100px;
-	padding-bottom:50px; 
-	display:none;
-	top:0;
-} 
-@media (min-width: 768px) {
-	.section { padding-top:160px;}
-}
-
-/* Show one of sections */
-#head { 
-	display: block;
-}
-
-
-/********************************************************/
-/*                      Typography                      */
-/********************************************************/
-a { color:#fff; text-decoration: none; }
-a:hover, a:active { color:#fff; text-decoration: underline; }
-.lead { 
-	font-weight:normal;
-	font-size:1.5em;
-	line-height:1.2em;
-}
-
+/******************* Main page titles *********************/
 .title,
-.subtitle { 
-	font-family: 'Wire One', Helvetica, Arial, sans-serif;
-	font-weight:normal;
-	font-size:7em;
-	margin-bottom:15px; 
-	color:#FDF9F4; 
-	line-height:1em;
-}
-.subtitle { 
-	line-height:.9em;
-	font-size:5.5em;
-	margin-top:0;
-	margin-bottom:40px; 
-}
-.tagline { 
-	font-size:1.4em;
-	line-height:1.3em;
-	font-weight:normal;
-	margin-bottom:75px;
+.subtitle {
+	font-family: latoblack, Helvetica, Arial, sans-serif;
 }
 
-@media (max-width: 767px) {
-	.lead { 
-		font-size:1.3em;
+.title {
+	text-transform: uppercase;
+}
+
+
+/********** Main content spacing and alignment ***********/
+
+.main-content {
+	min-height: 420px;
+	width: 100%;
+	overflow: auto;
+	height: 100%;
+	padding-top: 100px;
+	padding-bottom: 50px;
+	top: 0;
+}
+
+@media (min-width: 768px) {
+	.main-content {
+		padding-top: 160px;
 	}
 }
 
 
-/********************************************************/
-/*                   UI - Buttons                       */
-/********************************************************/
+
+/*************** Navbar customisation ********************/
+
+.navbar.transparent {
+	background: rgba(0,0,0,0);
+	border: none;
+}
+
+.navbar .navbar-nav>li>a,
+.navbar li:hover {
+	color: #000000;
+	background-color: rgba(0,0,0,0);
+	text-transform: uppercase;
+}
+
+
+
+
+
+/***************** Pretty Buttons **********************/
 .btn{
 	color:#333;
 	text-shadow: none;
@@ -136,163 +107,62 @@ a:hover, a:active { color:#fff; text-decoration: underline; }
 
 
 
-/********************************************************/
-/*                 UI - Thumbnails                      */
-/********************************************************/
-.thumbnail {
-	background-color: rgba(255,255,255,.2);
-	border: 0 none;
-	padding:10px;
-	-webkit-border-radius: 2px;
-	   -moz-border-radius: 2px;
-	        border-radius: 2px;
-}
-.thumbnail .caption {
-	color: inherit;
-}
+/* FONTS - Lato black */
 
 
+@font-face {
+    font-family: 'latoblack';
+    src: url('fonts/lato-bla-webfont.eot');
+    src: url('fonts/lato-bla-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/lato-bla-webfont.woff') format('woff'),
+         url('fonts/lato-bla-webfont.ttf') format('truetype'),
+         url('fonts/lato-bla-webfont.svg#latoblack') format('svg');
+    font-weight: normal;
+    font-style: normal;
 
-/********************************************************/
-/*                 Everything else                      */
-/********************************************************/
-
-.list-social .btn { 
-	font-size:1.3em; 
-}
-.list-social .btn:hover, .list-social .btn:active, .list-social .btn:focus { 
-	text-decoration: none; 
-}
-
-
-/* Social buttons in the footer */
-#social { 
-	margin-top:50px;
-	margin-bottom:50px;
-}
-#social .wrapper { 
-	width:340px; 
-	margin:0 auto;
 }
 
 
 
 
+@font-face {
+    font-family: 'latolight';
+    src: url('fonts/lato-lig-webfont.eot');
+    src: url('fonts/lato-lig-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/lato-lig-webfont.woff') format('woff'),
+         url('fonts/lato-lig-webfont.ttf') format('truetype'),
+         url('fonts/lato-lig-webfont.svg#latolight') format('svg');
+    font-weight: normal;
+    font-style: normal;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/***********************************************************/
-/*                   Theme: text shadows                   */
-/***********************************************************/
-.text-shadows { 	
-	text-shadow:0 1px 2px rgba(0,0,0,.2);
-}
-.text-shadows .title,
-.text-shadows .subtitle,
-.text-shadows .tagline { 
-	text-shadow:0 2px 3px rgba(0,0,0,.4);
-}
-.text-shadows .mainmenu .dropdown-menu a { 
-	text-shadow:0 2px 1px rgba(0,0,0,.2);
-}
-.text-shadows .mainmenu .dropdown-menu a:hover { 
-	text-shadow:none;
 }
 
 
 
-/***********************************************************/
-/*                   Inverted theme                        */
-/***********************************************************/
-.theme-invert { 	
-	color:#222;
-	color:rgba(0,0,0,.8); 
- }
-.theme-invert a { 
-	color:#000;
-}
-.theme-invert .btn {
-	color:rgba(255,255,255,.8);
-}
-.theme-invert .btn:hover {
-	color:#fff;
-}
-.theme-invert .btn-link {
-	color:rgba(0,0,0,.8);
-}
-.theme-invert .btn-link:hover, .theme-invert .btn-link:focus, .theme-invert .btn-link:active {
-	color:#000
-}
-.theme-invert .navbar-toggle {
-	background: rgba(0, 0, 0, 0.12);
-}
-.theme-invert .navbar-toggle .icon-bar {
-  background: #333;
-}
-.theme-invert .mainmenu .dropdown-menu a { 
-	color:#000;
-}
-.theme-invert .mainmenu .dropdown-menu a:hover { 
-	background:rgba(0,0,0,.1);
-	color:#000;
-}
 
-.theme-invert .title,
-.theme-invert .subtitle,
-.theme-invert .tagline { 
-	color:#222222; 
-}
+@font-face {
+    font-family: 'latoregular';
+    src: url('fonts/lato-reg-webfont.eot');
+    src: url('fonts/lato-reg-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/lato-reg-webfont.woff') format('woff'),
+         url('fonts/lato-reg-webfont.ttf') format('truetype'),
+         url('fonts/lato-reg-webfont.svg#latoregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 
-.theme-invert .btn-default {
-	background: rgba(0,0,0,.4);
-}
-.theme-invert .btn-default:hover,
-.theme-invert .btn-default:focus,
-.theme-invert .btn-default:active,
-.theme-invert .btn-default.active {
-	background: rgba(0,0,0,.6);
-	color:#fff;
-}
-.theme-invert .btn-primary {
-	background: rgba(0,0,0,.2);
-}
-.theme-invert .btn-primary:hover,
-.theme-invert .btn-primary:focus,
-.theme-invert .btn-primary:active,
-.theme-invert .btn-primary.active {
-	background: rgba(0,0,0,.3);
-	color:#fff;
-}
-
-.theme-invert .thumbnail {
-	background-color: rgba(255,255,255,.8);
-}
-.thumbnail .caption {
-	color: inherit;
 }
 
 
 
+
+@font-face {
+    font-family: 'latobold';
+    src: url('fonts/lato-bol-webfont.eot');
+    src: url('fonts/lato-bol-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/lato-bol-webfont.woff') format('woff'),
+         url('fonts/lato-bol-webfont.ttf') format('truetype'),
+         url('fonts/lato-bol-webfont.svg#latobold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
