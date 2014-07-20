@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EaselJS: Simple SpriteSheet Example</title>
+
+	<link href="assets/demoStyles.css" rel="stylesheet" type="text/css" />
+
+	<!-- Note: All core EaselJS classes are listed here: -->
+	<script type="text/javascript" src="createjs/events/Event.js"></script>
+	<script type="text/javascript" src="createjs/events/EventDispatcher.js"></script>
+	<script type="text/javascript" src="createjs/utils/IndexOf.js"></script>
+	<script type="text/javascript" src="easeljs/utils/UID.js"></script>
+	<script type="text/javascript" src="easeljs/utils/Ticker.js"></script>
+	<script type="text/javascript" src="easeljs/geom/Matrix2D.js"></script>
+	<script type="text/javascript" src="easeljs/geom/Point.js"></script>
+	<script type="text/javascript" src="easeljs/geom/Rectangle.js"></script>
+	<script type="text/javascript" src="easeljs/display/Shadow.js"></script>
+	<script type="text/javascript" src="easeljs/display/SpriteSheet.js"></script>
+	<script type="text/javascript" src="easeljs/display/Graphics.js"></script>
+	<script type="text/javascript" src="easeljs/display/DisplayObject.js"></script>
+	<script type="text/javascript" src="easeljs/display/Container.js"></script>
+	<script type="text/javascript" src="easeljs/display/Stage.js"></script>
+	<script type="text/javascript" src="easeljs/display/Bitmap.js"></script>
+	<script type="text/javascript" src="easeljs/display/Sprite.js"></script>
+	<script type="text/javascript" src="easeljs/display/BitmapAnimation.js"></script>
+	<script type="text/javascript" src="easeljs/display/BitmapText.js"></script>
+	<script type="text/javascript" src="easeljs/display/Shape.js"></script>
+	<script type="text/javascript" src="easeljs/display/Text.js"></script>
+	<script type="text/javascript" src="easeljs/display/DOMElement.js"></script>
+	<script type="text/javascript" src="easeljs/events/MouseEvent.js"></script>
+	<script type="text/javascript" src="easeljs/filters/Filter.js"></script>
+	<script type="text/javascript" src="easeljs/ui/ButtonHelper.js"></script>
+	<script type="text/javascript" src="easeljs/ui/Touch.js"></script>
+	<script type="text/javascript" src="easeljs/utils/SpriteSheetUtils.js"></script>
+	<script type="text/javascript" src="easeljs/utils/SpriteSheetBuilder.js"></script>
+
+	<!-- We also provide hosted minified versions of all CreateJS libraries.
+	  http://code.createjs.com -->
+
+	<script type="text/javascript">
+	
+	var KEYCODE_ENTER = 13;		//usefull keycode
+	var KEYCODE_SPACE = 32;		//usefull keycode
+	var KEYCODE_UP = 38;		//usefull keycode
+	var KEYCODE_LEFT = 37;		//usefull keycode
+	var KEYCODE_RIGHT = 39;		//usefull keycode
+	var KEYCODE_W = 87;			//usefull keycode
+	var KEYCODE_A = 65;			//usefull keycode
+	var KEYCODE_D = 68;			//usefull keycode
+
+	var shootHeld;			//is the user holding a shoot command
+	var lfHeld;				//is the user holding a turn left command
+	var rtHeld;				//is the user holding a turn right command
+	var fwdHeld;			//is the user holding a forward command
+	
+	// Ship object definition
+	var Ship = function() {
+		var _direction = 0;
+		var _directionMax= 32;
+		
+		// Increase or decrease the rotation direction - check for max first
+		function rotateDirection(isClockwise) {
+			if (isClockwise === false) {
+				if (_direction === 0) {
+					_direction = _directionMax;
+				} else {
+					_direction--;
+				}
+			} else if (isClockwise) {
+				if (_direction === _directionMax) {
+					_direction = 0;
+				} else {
+					_direction++;
+				}
+			// null or undefined
+			} else {
+				throw new Error('Invalid arg passed to rotateDirection');
+			}
+		}
+		
+		this.maxSpeed = 5;
+		this.speed = [0,0]; // x,y speed - negatives can be used
+		this.position = [0,0]; // x,y position on canvas
+		this.sprites = null;
+		this.getDirection = function() {
+			return _direction;
+		};
+		
+		this.turnLeft = function() {
+			rotateDirection(false);
+			if (this.sprites.currentAnimation !== 'spinAntiClock') {
+				this.sprites.gotoAndPlay('spinAntiClock');
+				this.sprites.currentAnimationFrame = _directionMax - _direction;
+				rotateDirection(false);
+				rotateDirection(false);
+			} else {
+				pirateShip.sprites.play();
+			}
+		};
+		
+		this.turnRight = function() {
+			rotateDirection(true);
+			if (pirateShip.sprites.currentAnimation !== 'spinClock') {
+				pirateShip.sprites.gotoAndPlay('spinClock');
+				pirateShip.sprites.currentAnimationFrame =  _direction;
+				rotateDirection(true);
+				rotateDirection(true);
+			} else {
+				pirateShip.sprites.play();
+			}
+		};
+		
+		this.moveForward = function() {
+			this.sprites.x += this.speed[0];
+			this.sprites.y += this.speed[1];
+			
+			// retardation
+			if (this.speed[0] > 0) {
+				if (this.speed[0] > 0.5) {
+					this.speed[0]-= 0.5;
+				}
+			} else if (this.speed[0] < 0) {
+				if (this.speed[0] < -0.5) {
+					this.speed[0]+= 0.5;
+				}
+			}
+
+			if (this.speed[1] > 0) {
+				if (this.speed[1] > 0.5) {
+					this.speed[1]-= 0.5;
+				}
+			} else if (this.speed[1] < 0) {
+				if (this.speed[1] < -0.5) {
+					this.speed[1]+= 0.5;
+				}
+			}
+		};
+		
+		this.accelerate = function() {
+			// 16 -32 is positive Y
+			if (_direction > _directionMax / 2 && _direction != _directionMax) {
+				this.speed[1]--;
+			} else if (_direction < _directionMax / 2 && _direction != 0) {
+				this.speed[1]++;
+			}
+			
+			if ((_direction >= _directionMax * 3/4) || (_direction <= _directionMax * 1/4)) {
+				this.speed[0]++;
+			} else if ((_direction <= _directionMax * 3/4) && (_direction >= _directionMax * 1/4)) {
+				this.speed[0]--;
+			}
+		}
+	};
+	
+	var pirateShip; // Global
+	
+    var stage;
+	function init() {
+
+		// create a new stage and point it at our canvas:
+		stage = new createjs.Stage(document.getElementById("testCanvas"));
+
+		// Define a spritesheet.
+		var shipAnimations = new createjs.SpriteSheet({
+			"animations": 
+				{
+					"spinClock": {
+						frames: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 ]
+					},
+					"spinAntiClock": {
+						frames: [ 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 ]
+					}
+				},
+			"images": ["assets/ship.png"],
+			"frames":
+				{
+					"height": 128,
+					"width":128,
+					"regX": 0,
+					"regY": 0,
+					"count": 32
+				}
+		});
+		
+		// Add the ship as a sprite animation
+		var spriteShip = new createjs.Sprite(shipAnimations, 0); // don't start any animations
+		spriteShip.x = 360;
+		spriteShip.y = 22;
+		
+		// Add sprites to global ship option
+		pirateShip = new Ship();
+		pirateShip.sprites = spriteShip;
+
+		// Add ship to stage, and add it as a listener to Ticker to get updates each frame.
+		stage.addChild(spriteShip);
+		createjs.Ticker.setFPS(20);
+		// Update stage every tick
+		createjs.Ticker.addEventListener("tick", stage);
+		
+		// Add ticker
+		createjs.Ticker.addEventListener("tick", tick);
+	}
+	
+	function tick() {
+		pirateShip.moveForward();
+		
+		if (lfHeld) {
+			pirateShip.turnLeft();
+		
+		} else if (rtHeld) {
+			pirateShip.turnRight();
+		} else {
+			pirateShip.sprites.stop();
+		}
+		
+		if (fwdHeld) {
+			pirateShip.accelerate();
+		}
+	}
+	
+		// Bind keys
+	document.onkeydown = handleKeyDown;
+	document.onkeyup = handleKeyUp;
+	
+	// Add WASD key listeners
+	function handleKeyDown(e) {
+		//cross browser issues exist
+		if(!e){ var e = window.event; }
+		switch(e.keyCode) {
+			case KEYCODE_A:
+			case KEYCODE_LEFT:	lfHeld = true; return false;
+			case KEYCODE_D:
+			case KEYCODE_RIGHT: rtHeld = true; return false;
+			case KEYCODE_W:
+			case KEYCODE_UP:	fwdHeld = true; return false;
+			case KEYCODE_ENTER:	 if(canvas.onclick == handleClick){ handleClick(); }return false;
+		}
+	}
+
+	function handleKeyUp(e) {
+		//cross browser issues exist
+		if(!e){ var e = window.event; }
+		switch(e.keyCode) {
+			case KEYCODE_A:
+			case KEYCODE_LEFT:	lfHeld = false; break;
+			case KEYCODE_D:
+			case KEYCODE_RIGHT: rtHeld = false; break;
+			case KEYCODE_W:
+			case KEYCODE_UP:	fwdHeld = false; break;
+		}
+	}
+
+	</script>
+</head>
+<body onload="init();">
+
+	<div class="canvasHolder">
+		<canvas id="testCanvas" width="960" height="400"></canvas>
+	</div>
+</body>
+</html>
