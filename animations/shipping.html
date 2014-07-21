@@ -33,7 +33,7 @@
 	<script type="text/javascript" src="easeljs/ui/Touch.js"></script>
 	<script type="text/javascript" src="easeljs/utils/SpriteSheetUtils.js"></script>
 	<script type="text/javascript" src="easeljs/utils/SpriteSheetBuilder.js"></script>
-
+	<script type="text/javascript" src="ship.js"></script>
 	<!-- We also provide hosted minified versions of all CreateJS libraries.
 	  http://code.createjs.com -->
 
@@ -53,113 +53,34 @@
 	var rtHeld;				//is the user holding a turn right command
 	var fwdHeld;			//is the user holding a forward command
 	
-	// Ship object definition
-	var Ship = function() {
-		var _direction = 0;
-		var _directionMax= 32;
-		
-		// Increase or decrease the rotation direction - check for max first
-		function rotateDirection(isClockwise) {
-			if (isClockwise === false) {
-				if (_direction === 0) {
-					_direction = _directionMax;
-				} else {
-					_direction--;
-				}
-			} else if (isClockwise) {
-				if (_direction === _directionMax) {
-					_direction = 0;
-				} else {
-					_direction++;
-				}
-			// null or undefined
-			} else {
-				throw new Error('Invalid arg passed to rotateDirection');
-			}
-		}
-		
-		this.maxSpeed = 5;
-		this.speed = [0,0]; // x,y speed - negatives can be used
-		this.position = [0,0]; // x,y position on canvas
-		this.sprites = null;
-		this.getDirection = function() {
-			return _direction;
-		};
-		
-		this.turnLeft = function() {
-			rotateDirection(false);
-			if (this.sprites.currentAnimation !== 'spinAntiClock') {
-				this.sprites.gotoAndPlay('spinAntiClock');
-				this.sprites.currentAnimationFrame = _directionMax - _direction;
-				rotateDirection(false);
-				rotateDirection(false);
-			} else {
-				pirateShip.sprites.play();
-			}
-		};
-		
-		this.turnRight = function() {
-			rotateDirection(true);
-			if (pirateShip.sprites.currentAnimation !== 'spinClock') {
-				pirateShip.sprites.gotoAndPlay('spinClock');
-				pirateShip.sprites.currentAnimationFrame =  _direction;
-				rotateDirection(true);
-				rotateDirection(true);
-			} else {
-				pirateShip.sprites.play();
-			}
-		};
-		
-		this.moveForward = function() {
-			this.sprites.x += this.speed[0];
-			this.sprites.y += this.speed[1];
-			
-			// retardation
-			if (this.speed[0] > 0) {
-				if (this.speed[0] > 0.5) {
-					this.speed[0]-= 0.5;
-				}
-			} else if (this.speed[0] < 0) {
-				if (this.speed[0] < -0.5) {
-					this.speed[0]+= 0.5;
-				}
-			}
-
-			if (this.speed[1] > 0) {
-				if (this.speed[1] > 0.5) {
-					this.speed[1]-= 0.5;
-				}
-			} else if (this.speed[1] < 0) {
-				if (this.speed[1] < -0.5) {
-					this.speed[1]+= 0.5;
-				}
-			}
-		};
-		
-		this.accelerate = function() {
-			// 16 -32 is positive Y
-			if (_direction > _directionMax / 2 && _direction != _directionMax) {
-				this.speed[1]--;
-			} else if (_direction < _directionMax / 2 && _direction != 0) {
-				this.speed[1]++;
-			}
-			
-			if ((_direction >= _directionMax * 3/4) || (_direction <= _directionMax * 1/4)) {
-				this.speed[0]++;
-			} else if ((_direction <= _directionMax * 3/4) && (_direction >= _directionMax * 1/4)) {
-				this.speed[0]--;
-			}
-		}
-	};
 	
-	var pirateShip; // Global
-	
-    var stage;
+	// Globals
+	var pirateShip, 
+    	stage;
+    
 	function init() {
 
 		// create a new stage and point it at our canvas:
 		stage = new createjs.Stage(document.getElementById("testCanvas"));
-
+		
+			
+		// json map data at the end of this file for ease of understanding (created on Tiled map editor)
+		mapData = mapDataJson; // could get from JSON instead when on live.
+		var mapSize = 1000;
+		for (var i = 0; i < mapSize; i++) {
+			mapData.layers[0].data.push(85);
+			if (Math.random() > 0.98) {
+				mapData.layers[0].data.push(101);
+			} else if (Math.random() < 0.01) {
+				mapData.layers[0].data.push(103);
+			}
+		}
+		// create EaselJS image for tileset
+		tileset = new Image();
+		// getting imagefile from first tileset
+		tileset.src = mapData.tilesets[0].image;
+		// callback for loading layers after tileset is loaded
+		tileset.onLoad = initLayers();
 		// Define a spritesheet.
 		var shipAnimations = new createjs.SpriteSheet({
 			"animations": 
@@ -199,6 +120,7 @@
 		
 		// Add ticker
 		createjs.Ticker.addEventListener("tick", tick);
+
 	}
 	
 	function tick() {
@@ -249,6 +171,110 @@
 			case KEYCODE_UP:	fwdHeld = false; break;
 		}
 	}
+	
+
+// loading layers
+function initLayers() {
+	// compose EaselJS tileset from image (fixed 64x64 now, but can be parametized)
+	var w = mapData.tilesets[0].tilewidth;
+	var h = mapData.tilesets[0].tileheight;
+	var imageData = {
+		images : [ tileset ],
+		frames : {
+			width : w,
+			height : h
+		}
+	};
+	// create spritesheet
+	var tilesetSheet = new createjs.SpriteSheet(imageData);
+	
+	// loading each layer at a time
+	for (var idx = 0; idx < mapData.layers.length; idx++) {
+		var layerData = mapData.layers[idx];
+		if (layerData.type == 'tilelayer')
+			initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
+	}
+	// stage updates (not really used here)
+	createjs.Ticker.setFPS(20);
+	createjs.Ticker.addEventListener(stage);
+}
+
+// layer initialization
+function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
+	for ( var y = 0; y < layerData.height; y++) {
+		for ( var x = 0; x < layerData.width; x++) {
+			// create a new Bitmap for each cell
+			var cellBitmap = new createjs.BitmapAnimation(tilesetSheet);
+			// layer data has single dimension array
+			var idx = x + y * layerData.width;
+			// tilemap data uses 1 as first value, EaselJS uses 0 (sub 1 to load correct tile)
+			cellBitmap.gotoAndStop(layerData.data[idx] - 1);
+			// isometrix tile positioning based on X Y order from Tiled
+			cellBitmap.x = 400 + x * tilewidth/2 - y * tilewidth/2;
+			cellBitmap.y = -300 + (y * tileheight/2 + x * tileheight/2);
+			// add bitmap to stage
+			stage.addChild(cellBitmap);
+		}
+	}
+}
+
+// Map data created on Tiled map editor (mapeditor.org). Use export for JSON format
+var mapDataJson = { "height":1,
+ "layers":[
+        {
+         "data":[85], // insert extra items into this rather than writing a huge array here
+         "height":30,
+         "name":"ground00",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":30,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 131, 0, 0, 0, 0, 60, 59, 71, 0, 0, 
+         0, 0, 0, 0, 0, 58, 64, 53, 0, 0, 0, 0, 141, 0, 0, 58, 61, 53, 0, 0, 0, 0, 0, 0, 
+         0, 54, 52, 52, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 90, 89, 87, 0, 126, 0, 119, 118, 
+         116, 0, 88, 101, 83, 0, 125, 0, 117, 115, 113, 0, 84, 82, 81, 0, 130, 122, 114, 
+         112, 111, 0, 0, 0, 0, 0, 0, 128, 121, 0, 0, 0],
+         "height":10,
+         "name":"ground01",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }],
+ "orientation":"isometric",
+ "properties":
+    {
+
+    },
+ "tileheight":32,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "image":"assets/forest.png",
+         "imageheight":1024,
+         "imagewidth":640,
+         "margin":0,
+         "name":"forest",
+         "properties":
+            {
+
+            },
+         "spacing":0,
+         "tileheight":64,
+         "tilewidth":64
+        }],
+ "tilewidth":64,
+ "version":1,
+ "width":10
+};
+
+
 
 	</script>
 </head>
