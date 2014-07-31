@@ -125,6 +125,25 @@ body {
 	background: rgba(255,255,255,.5);
 }
 
+/********** Sticky footer ************/
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 30px;
+  background-color: transparent;
+}
+.footer div {
+	height: 30px;
+}
+
+.footer img {
+	max-height: 30px;
+}
+
+
 
 
 /* FONTS - Lato black */
