@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)http://js1k.com/2014-dragons/shim-normal.html -->
+<html><head><meta http-equiv="Content-Tyd" content="text/html; charset=UTF-8">
+		<title>JS1k, [COMPO] demo submission [ID]</title>
+		<meta charset="utf-8">
+    <style>
+      html, body { margin: 0; padding: 0; borer: 0; }
+      #c { display: block; } /* kill scrollbars from hell */
+    </style>
+	</head>
+	<body>
+		<a href="/will/code.html">code</a>
+		<canvas id="c" width="1302" height="739" style="width: 1302px; height: 739px;"></canvas>
+		<script>
+			var a = document.getElementsByTagName('canvas')[0];
+			var b = document.body;
+			  var d = function(e){ return function(){ e.parentNode.removeChild(e); }; }(a);
+			  // unprefix some popular vendor prefixed things (but stick to their original name)
+			  var AudioContext =
+			    window.AudioContext ||
+			    window.webkitAudioContext;
+			  var requestAnimationFrame =
+			    window.requestAnimationFrame ||
+			    window.mozRequestAnimationFrame ||
+			    window.webkitRequestAnimationFrame ||
+			    window.msRequestAnimationFrame ||
+			    function(f){ setTimeout(f, 1000/30); };
+			  // stretch canvas to screen size (once, wont onresize!)
+			  a.style.width = (a.width = innerWidth) + 'px';
+			  a.style.height = (a.height = innerHeight) + 'px';
+			
+			  var c = a.getContext('2d');
+		</script>
+		<script>
+		
+			document.onclick =function(e) {
+				ps.push(new p(e.clientX, e.clientY,10,10,2,2, r(20), "rgba(" + R(r(1000)) +"," + R(r(500)) + "," + R(r(100)) + ", 0.1)"));
+			};
+			// start of submission //
+			q = a.width/2,
+				w = a.height/2,
+				m = Math,
+			B = '#000';
+			
+			function P(x, y, r, l, l2) {
+			gd = c.createRadialGradient(x,y,0,x,y,r),
+				l2 = l2 ? l2 : B;
+				gd.addColorStop(0, l);
+				gd.addColorStop(1, l2);
+				c.beginPath();
+			    c.arc(x, y, r, 0, 2 * m.PI);
+			    D(gd);
+			}
+			
+			function D(f) {
+				c.fillStyle = f;
+				c.fill();
+			}
+
+			function p(x, y, vx, vy, ax, ay, r, l) {
+				return {
+					x : x,
+					y: y,
+					vx : vx,
+					vy: vy,
+					ax : ax,
+					ay : ay,
+					r : r,
+					l : l
+				}
+			}
+			y = '#fd1';
+			ps = [new p(q, w, 0, 0, 0, 0, 20, y),
+				new p(q + 100, w - 100, 6, 6, 1.5, 1.5, 10, 'red'),
+				new p(q + 50, w - 50, 5, 5, 1.5, 1.5, 10, 'blue'),
+				new p(q + 200, w - 200, -10, -10, 1.2, 1.2, 20, '#91b')],
+				ss = [],
+				pts = [];
+				
+			function r(t) {
+				return (m.random() * t);
+			}
+			
+			
+			for (k=0; k < 100; k++){
+				ss[k] = {x: r(2*q), y: r(2*w), s: r(2)};
+				pts[k] = new pl();
+			}
+			
+			setInterval(function() {
+				c.clearRect(0,0,q*2, w*2);
+				c.rect(0,0,q*2,w*2);
+				D(B);
+				
+				for (i = 0; i < ps.length; i++) {
+					
+					aX = (ps[i].x > q) ? -ps[i].ax/2 : ps[i].ax/2;
+					aY = (ps[i].y > w) ? -ps[i].ay/2 : ps[i].ay/2;
+					ps[i].vx += aX;
+					ps[i].vy += aY;
+					ps[i].x += ps[i].vx;
+					ps[i].y += ps[i].vy;
+					P(ps[i].x, ps[i].y, ps[i].r + ps[i].r * (ps[i].y - w)/w, ps[i].l);
+					
+				}
+				for (j = 0; j < 100; j++) {
+					P(ss[j].x, ss[j].y, r(2), '#fff');
+					c.globalCompositeOperation = 'lighter';
+					var p = pts[j];
+					P(p.x, p.y, p.r, p.c, p.c);
+	
+					p.r--;
+					p.x += p.vx;
+					p.y += p.vy;
+			
+					if ( p.r < 0){
+						pts[j] = new pl();
+					}
+				}
+			}, 30);
+			
+			function pl()
+			{
+				var d = new p(q, w, -2.5+r(5), -2+r(5), 0, 0, 10+r(10));
+				d.c = "rgba(" + R(r(700)) +"," + R(r(300)) + "," + R(r(100)) + ", 0.1)";
+				return d;
+			}
+		
+			function R(d) {
+				return m.round(d);
+			}
+					// end of submission //
+		</script>
+
+</body></html>
