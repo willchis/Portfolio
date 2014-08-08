@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Grow - a game of evolution</title>
+
+	<link href="assets/grow.css" rel="stylesheet" type="text/css" />
+
+	<!-- Note: All core EaselJS classes are listed here: -->
+	<script type="text/javascript" src="createjs/events/Event.js"></script>
+	<script type="text/javascript" src="createjs/events/EventDispatcher.js"></script>
+	<script type="text/javascript" src="createjs/utils/IndexOf.js"></script>
+	<script type="text/javascript" src="easeljs/utils/UID.js"></script>
+	<script type="text/javascript" src="easeljs/utils/Ticker.js"></script>
+	<script type="text/javascript" src="easeljs/geom/Matrix2D.js"></script>
+	<script type="text/javascript" src="easeljs/geom/Point.js"></script>
+	<script type="text/javascript" src="easeljs/geom/Rectangle.js"></script>
+	<script type="text/javascript" src="easeljs/display/Shadow.js"></script>
+	<script type="text/javascript" src="easeljs/display/SpriteSheet.js"></script>
+	<script type="text/javascript" src="easeljs/display/Graphics.js"></script>
+	<script type="text/javascript" src="easeljs/display/DisplayObject.js"></script>
+	<script type="text/javascript" src="easeljs/display/Container.js"></script>
+	<script type="text/javascript" src="easeljs/display/Stage.js"></script>
+	<script type="text/javascript" src="easeljs/display/Bitmap.js"></script>
+	<script type="text/javascript" src="easeljs/display/Sprite.js"></script>
+	<script type="text/javascript" src="easeljs/display/BitmapAnimation.js"></script>
+	<script type="text/javascript" src="easeljs/display/BitmapText.js"></script>
+	<script type="text/javascript" src="easeljs/display/Shape.js"></script>
+	<script type="text/javascript" src="easeljs/display/Text.js"></script>
+	<script type="text/javascript" src="easeljs/display/DOMElement.js"></script>
+	<script type="text/javascript" src="easeljs/events/MouseEvent.js"></script>
+	<script type="text/javascript" src="easeljs/filters/Filter.js"></script>
+	<script type="text/javascript" src="easeljs/ui/ButtonHelper.js"></script>
+	<script type="text/javascript" src="easeljs/ui/Touch.js"></script>
+	<script type="text/javascript" src="easeljs/utils/SpriteSheetUtils.js"></script>
+	<script type="text/javascript" src="easeljs/utils/SpriteSheetBuilder.js"></script>
+	<script type="text/javascript" src="him.js"></script>
+	<script type="text/javascript" src="grass.js"></script>
+	<!-- We also provide hosted minified versions of all CreateJS libraries.
+	  http://code.createjs.com -->
+
+	<script type="text/javascript">
+	
+	var KEYCODE_ENTER = 13;		//usefull keycode
+	var KEYCODE_SPACE = 32;		//usefull keycode
+	var KEYCODE_UP = 38;		//usefull keycode
+	var KEYCODE_LEFT = 37;		//usefull keycode
+	var KEYCODE_DOWN = 40;		//usefull keycode
+	var KEYCODE_RIGHT = 39;		//usefull keycode
+	var KEYCODE_W = 87;			//usefull keycode
+	var KEYCODE_A = 65;			//usefull keycode
+	var KEYCODE_D = 68;			//usefull keycode
+	var KEYCODE_S = 83;			//usefull keycode
+	var KEYCODE_SPACE = 32;			//usefull keycode
+
+	var spaceHeld;			//is the user holding a space
+	var lfHeld;				//is the user holding the left command
+	var rtHeld;				//is the user holding the right command
+	var upHeld;			//is the user holding the up command
+	var dnHeld;			//is the user holding the down command
+	var spaceHeld;		// has the user pressed space
+	
+	// Globals
+	var him, 
+    	stage;
+    
+	function init() {
+
+		// create a new stage and point it at our canvas:
+		var canvas = document.getElementById("canvas");
+		canvas.height = window.innerHeight;
+		canvas.width = window.innerWidth;
+		stage = new createjs.Stage(canvas);
+
+		// Define a spritesheet.
+		var shipAnimations = new createjs.SpriteSheet({
+			"animations": 
+				{
+					"left": [8,15],
+					"leftUp": [64, 69],
+					"up": [113, 118],
+					"rightUp": [169, 214],
+					"right": [225, 268],
+					"rightDown": [280, 326],
+					"down": [336, 378],
+					"leftDown": [396, 438]
+
+
+				},
+			"images": ["assets/dragon.png"],
+			"frames":
+				{
+					"height": 256,
+					"width":256,
+					"regX": 0,
+					"regY": 0,
+					"count": 448
+				}
+		});
+		
+		// Add the ship as a sprite animation
+		var himSprite = new createjs.Sprite(shipAnimations, 336); // don't start any animations
+		himSprite.x = 360;
+		himSprite.y = 22;
+		
+		// Add sprites to global ship option
+		him = new Him();
+		him.sprites = himSprite;
+
+		// Add ship to stage, and add it as a listener to Ticker to get updates each frame.
+		stage.addChild(himSprite);
+		createjs.Ticker.setFPS(18);
+		// Update stage every tick
+		createjs.Ticker.addEventListener("tick", stage);
+		
+		// Add ticker
+		createjs.Ticker.addEventListener("tick", tick);
+
+	}
+	
+	function tick() {
+		
+		// Check for double key
+		if (lfHeld) {
+			if (upHeld) {
+				him.leftUp();
+			} else if (dnHeld) {
+				him.leftDown();
+			} else {
+				him.left();
+			}
+		}
+		
+		// Check for double key
+		if (rtHeld) {
+			if (upHeld) {
+				him.rightUp();
+			} else if (dnHeld) {
+				him.rightDown();
+			} else {
+				him.right();
+			}
+		}
+		
+		if (upHeld && !lfHeld && !rtHeld) {
+			him.up();
+		}
+		
+		if (dnHeld && !lfHeld && !rtHeld) {
+			him.down();
+		} 
+		if (!lfHeld || !rtHeld || !upHeld || !dnHeld) {
+			him.retard();
+		}
+	}
+	
+		// Bind keys
+	document.onkeydown = handleKeyDown;
+	document.onkeyup = handleKeyUp;
+	
+	// Add WASD key listeners
+	function handleKeyDown(e) {
+		//cross browser issues exist
+		if(!e){ var e = window.event; }
+		switch(e.keyCode) {
+			case KEYCODE_A:
+			case KEYCODE_LEFT:	lfHeld = true; return false;
+			case KEYCODE_D:
+			case KEYCODE_RIGHT: rtHeld = true; return false;
+			case KEYCODE_W:
+			case KEYCODE_UP:	upHeld = true; return false;
+			case KEYCODE_S:
+			case KEYCODE_DOWN:	dnHeld = true; return false;
+			case KEYCODE_SPACE:	spaceHeld = true; return false;
+			case KEYCODE_ENTER:	 if(canvas.onclick == handleClick){ handleClick(); }return false;
+		}
+	}
+
+	function handleKeyUp(e) {
+		//cross browser issues exist
+		if(!e){ var e = window.event; }
+		switch(e.keyCode) {
+			case KEYCODE_A:
+			case KEYCODE_LEFT:	lfHeld = false; break;
+			case KEYCODE_D:
+			case KEYCODE_RIGHT: rtHeld = false; break;
+			case KEYCODE_W:
+			case KEYCODE_UP:	upHeld = false; break;
+			case KEYCODE_S:
+			case KEYCODE_DOWN:	dnHeld = false; break;
+		}
+	}
+
+	</script>
+</head>
+<body onload="init();">
+
+	<div class="canvasHolder">
+		<canvas id="canvas"></canvas>
+	</div>
+</body>
+</html>
