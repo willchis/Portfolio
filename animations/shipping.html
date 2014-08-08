@@ -61,7 +61,10 @@
 	function init() {
 
 		// create a new stage and point it at our canvas:
-		stage = new createjs.Stage(document.getElementById("testCanvas"));
+		var canvas = document.getElementById("testCanvas");
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		stage = new createjs.Stage(canvas);
 		
 			
 		// json map data at the end of this file for ease of understanding (created on Tiled map editor)
@@ -105,8 +108,8 @@
 		
 		// Add the ship as a sprite animation
 		var spriteShip = new createjs.Sprite(shipAnimations, 0); // don't start any animations
-		spriteShip.x = 360;
-		spriteShip.y = 22;
+		spriteShip.x = window.innerWidth / 3;
+		spriteShip.y = window.innerHeight / 3;
 		
 		// Add sprites to global ship option
 		pirateShip = new Ship();
@@ -210,8 +213,8 @@ function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 			// tilemap data uses 1 as first value, EaselJS uses 0 (sub 1 to load correct tile)
 			cellBitmap.gotoAndStop(layerData.data[idx] - 1);
 			// isometrix tile positioning based on X Y order from Tiled
-			cellBitmap.x = 400 + x * tilewidth/2 - y * tilewidth/2;
-			cellBitmap.y = -300 + (y * tileheight/2 + x * tileheight/2);
+			cellBitmap.x = (window.innerWidth / 2) + x * tilewidth/2 - y * tilewidth/2;
+			cellBitmap.y = -100 + (y * tileheight/2 + x * tileheight/2);
 			// add bitmap to stage
 			stage.addChild(cellBitmap);
 		}
