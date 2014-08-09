@@ -1,147 +1,97 @@
 // Ship object definition
   var Him = function() {
-    var _direction = 0;
-    var _directionMax= 32;
+    var that = this;
+    var _direction = 'down';
     var _drag = 0.5;
     var _maxSpeed = 10;
     var _speed = 12;
     
-    // Increase or decrease the rotation direction - check for max first
-    function rotateDirection(isClockwise) {
-      if (isClockwise === false) {
-        if (_direction === 0) {
-          _direction = _directionMax;
-        } else {
-          _direction--;
-        }
-      } else if (isClockwise) {
-        if (_direction === _directionMax) {
-          _direction = 0;
-        } else {
-          _direction++;
-        }
-      // null or undefined
-      } else {
-        throw new Error('Invalid arg passed to rotateDirection');
-      }
-    }
     
-    this.speed = [0,0]; // x,y speed - negatives can be used
-    this.sprites = null;
-    this.getDirection = function() {
+    that.speed = [0,0]; // x,y speed - negatives can be used
+    that.sprites = null;
+    that.getDirection = function() {
       return _direction;
     };
     
-    this.left = function() {
-      this.sprites.x -= _speed;
-      if (this.sprites.currentAnimation !== 'left') {
-        this.sprites.gotoAndPlay('left');
-        this.sprites.currentAnimationFrame = _directionMax - _direction;
-      } else {
-        him.sprites.play();
-      }
+    that.left = function() {
+      _direction = 'left';
+      that.sprites.x -= _speed;
+      switchAnimation('left');
     };
     
-    this.leftUp = function() {
-      this.sprites.x -= _speed;
-      this.sprites.y -= _speed;
-      if (this.sprites.currentAnimation !== 'leftUp') {
-        this.sprites.gotoAndPlay('leftUp');
-        this.sprites.currentAnimationFrame = _directionMax - _direction;
-      } else {
-        him.sprites.play();
-      }
+    that.leftUp = function() {
+      _direction = 'leftUp';
+      that.sprites.x -= _speed;
+      that.sprites.y -= _speed;
+      switchAnimation('leftUp');
     };
     
-    this.leftDown = function() {
-      this.sprites.x -= _speed;
-      this.sprites.y += _speed;
-      if (this.sprites.currentAnimation !== 'leftDown') {
-        this.sprites.gotoAndPlay('leftDown');
-        this.sprites.currentAnimationFrame = _directionMax - _direction;
-      } else {
-        him.sprites.play();
-      }
+    that.leftDown = function() {
+      _direction = 'leftDown';
+      that.sprites.x -= _speed;
+      that.sprites.y += _speed;
+      switchAnimation('leftDown');
     };
     
-    this.right = function() {
-      this.sprites.x += _speed;
-      if (him.sprites.currentAnimation !== 'right') {
-        him.sprites.gotoAndPlay('right');
-        him.sprites.currentAnimationFrame =  _direction;
-      } else {
-        him.sprites.play();
-      }
+    that.right = function() {
+      _direction = 'right';
+      that.sprites.x += _speed;
+      switchAnimation('right');
     };
     
-    this.rightUp = function() {
-      this.sprites.x += _speed;
-      this.sprites.y -= _speed;
-      if (this.sprites.currentAnimation !== 'rightUp') {
-        this.sprites.gotoAndPlay('rightUp');
-        this.sprites.currentAnimationFrame = _directionMax - _direction;
-      } else {
-        him.sprites.play();
-      }
+    that.rightUp = function() {
+      _direction = 'rightUp';
+      that.sprites.x += _speed;
+      that.sprites.y -= _speed;
+      switchAnimation('rightUp');
     };
     
-    this.rightDown = function() {
-      this.sprites.x += _speed;
-      this.sprites.y += _speed;
-      if (this.sprites.currentAnimation !== 'rightDown') {
-        this.sprites.gotoAndPlay('rightDown');
-        this.sprites.currentAnimationFrame = _directionMax - _direction;
-      } else {
-        him.sprites.play();
-      }
+    that.rightDown = function() {
+      _direction = 'rightDown';
+      that.sprites.x += _speed;
+      that.sprites.y += _speed;
+      switchAnimation('rightDown');
     };
     
-    this.up = function() {
-      this.sprites.y -= _speed;
-      if (him.sprites.currentAnimation !== 'up') {
-        him.sprites.gotoAndPlay('up');
-        him.sprites.currentAnimationFrame =  _direction;
-      } else {
-        him.sprites.play();
+    that.up = function() {
+      _direction = 'up';
+      that.sprites.y -= _speed;
+      switchAnimation('up');
+    };
+    
+    that.down = function() {
+      _direction = 'down';
+      that.sprites.y += _speed;
+      switchAnimation('down');
+    };
+    
+    that.noInput = function() {
+      if (_direction === 'up') {
+        switchAnimation('upHover');
+      } else if (_direction === 'down') {
+        switchAnimation('downHover');
+      } else if (_direction === 'left') {
+        switchAnimation('leftHover');
+      } else if (_direction === 'leftDown') {
+        switchAnimation('leftDownHover');
+      } else if (_direction === 'leftUp') {
+        switchAnimation('leftUpHover');
+      } else if (_direction === 'right') {
+        switchAnimation('rightHover');
+      } else if (_direction === 'rightDown') {
+        switchAnimation('rightDownHover');
+      } else if (_direction === 'rightUp') {
+        switchAnimation('rightUpHover');
       }
       
     };
     
-    this.down = function() {
-      this.sprites.y += _speed;
-      if (him.sprites.currentAnimation !== 'down') {
-        him.sprites.gotoAndPlay('down');
-        him.sprites.currentAnimationFrame =  _direction;
+    // Check if chosen animation is running, if not then switch to it
+    function switchAnimation(name) {
+      if (that.sprites.currentAnimation !== name) {
+        that.sprites.gotoAndPlay(name);
       } else {
-        him.sprites.play();
-      }
-    };
-    
-    this.retard = function() {
-      
-      // keep the motion going
-      this.sprites.y += this.speed[1];
-      this.sprites.x -= this.speed[0];
-      
-      // retardation
-      if (this.speed[0] > 0) {
-        if (this.speed[0] > _drag) {
-          this.speed[0]-= _drag;
-        }
-      } else if (this.speed[0] < 0) {
-        if (this.speed[0] < -_drag) {
-          this.speed[0]+= 0.5;
-        }
-      }
-
-      if (this.speed[1] > 0) {
-        if (this.speed[1] > _drag) {
-          this.speed[1]-= _drag;
-        }
-      } else if (this.speed[1] < 0) {
-        if (this.speed[1] < -_drag) {
-          this.speed[1]+= _drag;
-        }
+        that.sprites.play();
       }
     }
   };

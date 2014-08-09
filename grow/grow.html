@@ -70,19 +70,54 @@
 		canvas.height = window.innerHeight;
 		canvas.width = window.innerWidth;
 		stage = new createjs.Stage(canvas);
+		
+		// json map data at the end of this file for ease of understanding (created on Tiled map editor)
+		mapData = mapDataJson; // could get from JSON instead when on live.
+		var mapSize = 1000;
+		for (var i = 0; i < mapSize; i++) {
+			mapData.layers[0].data.push(85);
+			if (Math.random() > 0.98) {
+				mapData.layers[0].data.push(101);
+			} else if (Math.random() < 0.01) {
+				mapData.layers[0].data.push(103);
+			}
+		}
+		// create EaselJS image for tileset
+		tileset = new Image();
+		// getting imagefile from first tileset
+		tileset.src = mapData.tilesets[0].image;
+		// callback for loading layers after tileset is loaded
+		tileset.onLoad = initLayers();
 
 		// Define a spritesheet.
-		var shipAnimations = new createjs.SpriteSheet({
+		// 0 - 7 hover right
+		// 56 - 64 hover right up
+		// 112 hover 
+		// 168
+		// 224
+		// 280
+		// 336
+		// 392
+		// 448
+		var dragonAnimations = new createjs.SpriteSheet({
 			"animations": 
 				{
-					"left": [8,15],
-					"leftUp": [64, 69],
-					"up": [113, 118],
-					"rightUp": [169, 214],
-					"right": [225, 268],
-					"rightDown": [280, 326],
-					"down": [336, 378],
-					"leftDown": [396, 438]
+					'leftHover': [0, 7],
+					'left': [8,15],
+					'leftUpHover': [56, 63],
+					'leftUp': [64, 71],
+					'upHover': [112, 119],
+					'up': [120, 127],
+					'rightUpHover': [168, 175],
+					'rightUp': [176, 183],
+					'rightHover': [224, 231],
+					'right': [232, 239],
+					'rightDownHover': [280, 287],
+					'rightDown': [288, 295],
+					'downHover': [336, 343],
+					'down': [343, 350],
+					'leftDownHover': [392, 399],
+					'leftDown': [400, 407]
 
 
 				},
@@ -98,7 +133,7 @@
 		});
 		
 		// Add the ship as a sprite animation
-		var himSprite = new createjs.Sprite(shipAnimations, 336); // don't start any animations
+		var himSprite = new createjs.Sprite(dragonAnimations, 336); // don't start any animations
 		himSprite.x = 360;
 		himSprite.y = 22;
 		
@@ -148,8 +183,8 @@
 		if (dnHeld && !lfHeld && !rtHeld) {
 			him.down();
 		} 
-		if (!lfHeld || !rtHeld || !upHeld || !dnHeld) {
-			him.retard();
+		if (!lfHeld && !rtHeld && !upHeld && !dnHeld) {
+			him.noInput();
 		}
 	}
 	
@@ -189,7 +224,93 @@
 			case KEYCODE_DOWN:	dnHeld = false; break;
 		}
 	}
-
+	
+	// loading layers
+	function initLayers() {
+		// compose EaselJS tileset from image (fixed 64x64 now, but can be parametized)
+		var w = mapData.tilesets[0].tilewidth;
+		var h = mapData.tilesets[0].tileheight;
+		var imageData = {
+			images : [ tileset ],
+			frames : {
+				width : w,
+				height : h
+			}
+		};
+		// create spritesheet
+		var tilesetSheet = new createjs.SpriteSheet(imageData);
+		
+		// loading each layer at a time
+		for (var idx = 0; idx < mapData.layers.length; idx++) {
+			var layerData = mapData.layers[idx];
+			if (layerData.type == 'tilelayer')
+				initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
+		}
+		// stage updates (not really used here)
+		createjs.Ticker.setFPS(20);
+		createjs.Ticker.addEventListener(stage);
+	}
+	
+	// layer initialization
+	function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
+		for ( var y = 0; y < layerData.height; y++) {
+			for ( var x = 0; x < layerData.width; x++) {
+				// create a new Bitmap for each cell
+				var cellBitmap = new createjs.BitmapAnimation(tilesetSheet);
+				// layer data has single dimension array
+				var idx = x + y * layerData.width;
+				// tilemap data uses 1 as first value, EaselJS uses 0 (sub 1 to load correct tile)
+				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
+				// isometrix tile positioning based on X Y order from Tiled
+				cellBitmap.x = (window.innerWidth / 2) + x * tilewidth/2 - y * tilewidth/2;
+				cellBitmap.y = -100 + (y * tileheight/2 + x * tileheight/2);
+				// add bitmap to stage
+				stage.addChild(cellBitmap);
+			}
+		}
+	}
+	
+	// Map data created on Tiled map editor (mapeditor.org). Use export for JSON format
+	var mapDataJson = { "height":1,
+	 "layers":[
+	        {
+	         "data":[10000], // insert extra items into this rather than writing a huge array here
+	         "height":32,
+	         "name":"ground00",
+	         "opacity":1,
+	         "type":"tilelayer",
+	         "visible":true,
+	         "width":32,
+	         "x":0,
+	         "y":0
+	        }
+	        ],
+	 "orientation":"isometric",
+	 "properties":
+	    {
+	
+	    },
+	 "tileheight":32,
+	 "tilesets":[
+	        {
+	         "firstgid":1,
+	         "image":"assets/forest.png",
+	         "imageheight":10000,
+	         "imagewidth":10000,
+	         "margin":0,
+	         "name":"forest",
+	         "properties":
+	            {
+	
+	            },
+	         "spacing":0,
+	         "tileheight":64,
+	         "tilewidth":64
+	        }],
+	 "tilewidth":64,
+	 "version":1,
+	 "width":10
+	};
 	</script>
 </head>
 <body onload="init();">
